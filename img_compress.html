@@ -957,94 +957,126 @@
                     attachments.</p>
             </section>
 
-            <!-- Compression Tool -->
-            <section class="tool-container">
-                <div class="tool-header">
-                    <h2><i class="fas fa-tools"></i> Image Compression Tool</h2>
+            
+    <main class="container">
+        <!-- Compression Tool -->
+        <section class="tool-container">
+            <div class="tool-header">
+                <h2><i class="fas fa-tools"></i> Image Compression Tool</h2>
+            </div>
+            
+            <div class="tool-body">
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">
+                        <h3>Drag & Drop Your Image Here</h3>
+                        <p>or click to browse files (JPG, PNG, WebP supported)</p>
+                        <div class="browse-btn" id="browseBtn">Browse Files</div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" style="display: none;">
                 </div>
+                
+                <!-- [Rest of your tool content remains the same] -->
+            </div>
+        </section>
+    </main>
 
-                <div class="tool-body">
-                    <!-- Upload Area -->
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-icon">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                        </div>
-                        <div class="upload-text">
-                            <h3>Drag & Drop Your Image Here</h3>
-                            <p>or click to browse files (JPG, PNG, WebP supported)</p>
-                            <div class="browse-btn">Browse Files</div>
-                        </div>
-                        <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" style="display: none;">
-                    </div>
-
-                    <!-- Settings -->
-                    <div class="settings">
-                        <div class="setting-group">
-                            <label for="compressionLevel">Compression Level</label>
-                            <div class="slider-container">
-                                <input type="range" min="0" max="100" value="70" class="slider" id="compressionLevel">
-                                <span class="slider-value" id="qualityValue">70%</span>
-                            </div>
-                        </div>
-
-                        <div class="setting-group">
-                            <label>Output Format</label>
-                            <div class="format-options">
-                                <div class="format-option">
-                                    <input type="radio" id="formatOriginal" name="outputFormat" value="original"
-                                        checked>
-                                    <label for="formatOriginal">
-                                        <i class="fas fa-file-image"></i> Original
-                                    </label>
-                                </div>
-                                <div class="format-option">
-                                    <input type="radio" id="formatJpg" name="outputFormat" value="jpg">
-                                    <label for="formatJpg">
-                                        <i class="fas fa-file-image"></i> JPG
-                                    </label>
-                                </div>
-                                <div class="format-option">
-                                    <input type="radio" id="formatPng" name="outputFormat" value="png">
-                                    <label for="formatPng">
-                                        <i class="fas fa-file-image"></i> PNG
-                                    </label>
-                                </div>
-                                <div class="format-option">
-                                    <input type="radio" id="formatWebp" name="outputFormat" value="webp">
-                                    <label for="formatWebp">
-                                        <i class="fas fa-file-image"></i> WebP
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="setting-group">
-                            <div class="toggle-switch">
-                                <label class="switch">
-                                    <input type="checkbox" id="resizeToggle">
-                                    <span class="slider-switch"></span>
-                                </label>
-                                <span class="toggle-label">Resize Image</span>
-                            </div>
-
-                            <div class="resize-options" id="resizeOptions">
-                                <div class="resize-grid">
-                                    <div class="resize-input">
-                                        <label for="resizeWidth">Width (px)</label>
-                                        <input type="number" id="resizeWidth" min="10" max="5000">
-                                    </div>
-                                    <div class="resize-input">
-                                        <label for="resizeHeight">Height (px)</label>
-                                        <input type="number" id="resizeHeight" min="10" max="5000">
-                                    </div>
-                                </div>
-                                <div class="aspect-ratio">
-                                    <input type="checkbox" id="maintainAspect" checked>
-                                    <label for="maintainAspect">Maintain Aspect Ratio</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <script>
+        // File Upload Functionality
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const browseBtn = document.getElementById('browseBtn');
+        const compressBtn = document.getElementById('compressBtn');
+        
+        // Click on browse button triggers file input
+        browseBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Click anywhere in upload area triggers file input
+        uploadArea.addEventListener('click', (e) => {
+            // Only trigger if clicked directly on upload area, not on child elements
+            if (e.target === uploadArea) {
+                fileInput.click();
+            }
+        });
+        
+        // Handle file selection
+        fileInput.addEventListener('change', handleFileSelection);
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('active');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('active');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('active');
+            
+            if (e.dataTransfer.files.length) {
+                handleFileSelection({ target: { files: e.dataTransfer.files } });
+            }
+        });
+        
+        function handleFileSelection(event) {
+            const file = event.target.files[0];
+            
+            // Check if file is selected
+            if (!file) return;
+            
+            // Check if file is an image
+            if (!file.type.match('image.*')) {
+                alert('Please select an image file (JPG, PNG, or WebP)');
+                return;
+            }
+            
+            originalFile = file;
+            compressBtn.disabled = false;
+            
+            // Display original file info
+            const originalSize = document.getElementById('originalSize');
+            const originalDimensions = document.getElementById('originalDimensions');
+            const originalFormat = document.getElementById('originalFormat');
+            
+            originalSize.textContent = `${(file.size / 1024).toFixed(2)} KB`;
+            
+            // Create image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalDimensions.textContent = `${this.width}×${this.height}`;
+                    
+                    // Set format
+                    const format = file.name.split('.').pop().toUpperCase();
+                    originalFormat.textContent = format;
+                    
+                    // Set original image preview
+                    document.getElementById('originalImage').src = e.target.result;
+                    
+                    // Set default resize values
+                    if (resizeToggle.checked) {
+                        document.getElementById('resizeWidth').value = this.width;
+                        document.getElementById('resizeHeight').value = this.height;
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // [Rest of your JavaScript remains the same]
+    </script>
+</body>
+</html>
 
                     <!-- Action Buttons -->
                     <div class="button-group">
